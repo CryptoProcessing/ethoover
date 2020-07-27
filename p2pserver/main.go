@@ -36,21 +36,24 @@ func startTestServer(remoteKey *ecdsa.PublicKey, pf func(*p2p.Peer)) *p2p.Server
 	targetNode := utils.NewNode("enode://006e0037a83ee46b93968f9c6c4a4208ea88c9c5c043c9a5775d42c8e17bb21730db26aa01e0d098db758bcb9f0a3c3c9c6a221dc8e06a4fcd14dc3123d90a9f@73.240.200.107:55818")
 
 	bootNodes := []*enode.Node{targetNode}
-
-	for _, bn := range MainnetBootnodes[1:] {
+	/*for _, bn := range MainnetBootnodes[1:] {
 		bootNodes = append(bootNodes, utils.NewNode(bn))
-	}
+	}*/
+
+	ethLogger := ethlog.New("ETHLog", "p2p")
+	ethLogger.SetHandler(ethlog.StdoutHandler)
 
 	config := p2p.Config{
 		Name:           "test",
 		MaxPeers:       10,
-		ListenAddr:     "127.0.0.1:0",
+		ListenAddr:     "0.0.0.0:0",
 		NoDiscovery:    false,
 		NoDial:         false,
 		BootstrapNodes: bootNodes,
 		PrivateKey:     newkey(),
-		Logger:         ethlog.New("ETHLog", "localhost"),
+		Logger:         ethLogger,
 	}
+
 	server := &p2p.Server{
 		Config: config,
 	}
@@ -73,8 +76,8 @@ func main() {
 	timeout := time.After(30 * time.Second)
 
 	defer close(connected)
-	//targetNode := utils.NewNode("enode://006e0037a83ee46b93968f9c6c4a4208ea88c9c5c043c9a5775d42c8e17bb21730db26aa01e0d098db758bcb9f0a3c3c9c6a221dc8e06a4fcd14dc3123d90a9f@73.240.200.107:55818")
-	targetNode := utils.NewNode(MainnetBootnodes[0])
+	//hosttargetNode := utils.NewNode("enode://006e0037a83ee46b93968f9c6c4a4208ea88c9c5c043c9a5775d42c8e17bb21730db26aa01e0d098db758bcb9f0a3c3c9c6a221dc8e06a4fcd14dc3123d90a9f@73.240.200.107:55818")
+	targetNode := utils.NewNode(MainnetBootnodes[1])
 	peerEventChan := make(chan *p2p.PeerEvent, 1)
 	sub := srv.SubscribeEvents(peerEventChan)
 	defer sub.Unsubscribe()
@@ -83,7 +86,7 @@ func main() {
 	for _, n := range MainnetBootnodes {
 		targetNode := utils.NewNode(n)
 
-		host := fmt.Sprintf("%s:%d", targetNode.IP(), targetNode.TCP())
+		host := fmt.Sprintf("%s:%d", targetNode.IP(), targetNode.UDP())
 		conn, err := net.DialTimeout("tcp", host, 5*time.Second)
 		if err != nil {
 			log.Fatalf("could not dial: %v", err)
@@ -91,7 +94,6 @@ func main() {
 			break
 		}
 		defer conn.Close()
-
 	}
 
 	srv.AddPeer(targetNode)
