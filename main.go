@@ -12,6 +12,6 @@ import (
 )
 
 func main() {
-	var node *enode.Node = utils.NewNode(utils.UintID(0x00), "127.0.0.1:30303")
+	var node *enode.Node = utils.NewNode()
 	fmt.Println(node.IP())
 }
