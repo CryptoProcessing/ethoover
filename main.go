@@ -32,7 +32,7 @@ var MainnetBootnodes = []string{
 
 type sharedUDPConn struct {
 	*net.UDPConn
-	unhandled chan discover.ReadPacket
+	//unhandled chan discover.ReadPacket
 }
 
 func main() {
@@ -64,11 +64,11 @@ func main() {
 	localNode.SetFallbackUDP(realaddr.Port)
 	localNode.SetFallbackIP(realaddr.IP)
 
-	unhandled := make(chan discover.ReadPacket, 100)
+	//unhandled := make(chan discover.ReadPacket, 100)
 
 	sconn := &sharedUDPConn{
 		conn,
-		unhandled,
+		//unhandled,
 	}
 
 	log.Println(localNode.Node().IP(), localNode.Node().Pubkey())
@@ -85,24 +85,34 @@ func main() {
 	udp, err := discover.ListenUDP(sconn, localNode, config)
 	log.Println(err, udp)
 
-	for k, v := range bootnodesList {
-		node := utils.NewNode(v)
-
-		pingTime := time.Now()
-		err = udp.Ping(node)
-		if err != nil {
-
-			ethLogger.Trace("Ping error", "err", err)
-		} else {
-			ethLogger.Debug("Ping", "time", time.Now().Sub(pingTime).Seconds(), "id", k)
+	var bootnodesListToCheck []string
+	for len(bootnodesList) > 0 {
+		bootnodesListToCheck = []string{}
+		for _, v := range bootnodesList {
+			bootnodesListToCheck = append(bootnodesListToCheck, v)
 		}
+		bootnodesList = []string{}
+		for k, v := range bootnodesListToCheck {
+			node := utils.NewNode(v)
 
-		nodes := udp.LookupPubkey(node.Pubkey())
-		for i, n := range nodes {
-			log.Println(i, n)
-			bootnodesMap[n.String()] = n
+			pingTime := time.Now()
+			err = udp.Ping(node)
+			if err != nil {
+
+				ethLogger.Trace("Ping error", "err", err)
+			} else {
+				ethLogger.Debug("Ping", "time", time.Now().Sub(pingTime).Seconds(), "id", k)
+			}
+
+			nodes := udp.LookupPubkey(node.Pubkey())
+			for i, n := range nodes {
+				log.Println(i, n)
+				if _, found := bootnodesMap[n.String()]; !found {
+					bootnodesMap[n.String()] = n
+					bootnodesList = append(bootnodesList, n.String())
+				}
+			}
 		}
-
 	}
 
 	for k, _ := range bootnodesMap {
