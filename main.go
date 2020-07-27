@@ -1,14 +1,14 @@
 package main
 
 import (
-			// common
-			"fmt"
+	// common
+	"fmt"
 
-			// 3rd party
-			"github.com/ethereum/go-ethereum/p2p/enode"
+	// 3rd party
+	"github.com/ethereum/go-ethereum/p2p/enode"
 
-			// internal
-			"github.com/CryptoProcessing/ethoover/utils"
+	// internal
+	"github.com/CryptoProcessing/ethoover/utils"
 )
 
 func main() {

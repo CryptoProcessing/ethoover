@@ -1,16 +1,16 @@
 package utils
 
 import (
-			// common
-			"net"
-			"fmt"
-			"strings"
-			"strconv"
-			"encoding/binary"
+	// common
+	"net"
+	"fmt"
+	"strings"
+	"strconv"
+	"encoding/binary"
 
-			// 3rd party
-			"github.com/ethereum/go-ethereum/p2p/enr"
-			"github.com/ethereum/go-ethereum/p2p/enode"
+	// 3rd party
+	"github.com/ethereum/go-ethereum/p2p/enr"
+	"github.com/ethereum/go-ethereum/p2p/enode"
 )
 
 // uintID encodes i into a node ID.
