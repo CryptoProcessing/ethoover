@@ -1,21 +1,17 @@
 package main
 
 import (
-			"net"
+			// common
 			"fmt"
-			"strings"
-			"strconv"
-			"encoding/binary"
 
-			"github.com/ethereum/go-ethereum/p2p"
-			"github.com/ethereum/go-ethereum/p2p/enr"
+			// 3rd party
 			"github.com/ethereum/go-ethereum/p2p/enode"
 
+			// internal
 			"github.com/CryptoProcessing/ethoover/utils"
 )
 
 func main() {
-	var node *enode.Node = newNode(uintID(0x00), "127.0.0.1:30303")
-	fmt.Println(node)
-	fmt.Println(p2p.NewPeer)
+	var node *enode.Node = utils.NewNode(utils.UintID(0x00), "127.0.0.1:30303")
+	fmt.Println(node.IP())
 }

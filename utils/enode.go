@@ -1,25 +1,27 @@
 package utils
 
 import (
+			// common
 			"net"
 			"fmt"
 			"strings"
 			"strconv"
 			"encoding/binary"
 
-			"github.com/ethereum/go-ethereum/p2p"
+			// 3rd party
 			"github.com/ethereum/go-ethereum/p2p/enr"
 			"github.com/ethereum/go-ethereum/p2p/enode"
 )
 
 // uintID encodes i into a node ID.
-func uintID(i uint16) enode.ID {
+func UintID(i uint16) enode.ID {
 	var id enode.ID
 	binary.BigEndian.PutUint16(id[:], i)
 	return id
 }
 
-func newNode(id enode.ID, addr string) *enode.Node {
+// returns new node
+func NewNode(id enode.ID, addr string) *enode.Node {
 	var r enr.Record
 	if addr != "" {
 		// Set the port if present.

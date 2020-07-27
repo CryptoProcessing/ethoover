@@ -1,4 +1,4 @@
-module github.com/adastreamer/ethoover
+module github.com/CryptoProcessing/ethoover
 
 go 1.14
 
