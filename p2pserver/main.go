@@ -36,9 +36,6 @@ func startTestServer(remoteKey *ecdsa.PublicKey, pf func(*p2p.Peer)) *p2p.Server
 	targetNode := utils.NewNode("enode://006e0037a83ee46b93968f9c6c4a4208ea88c9c5c043c9a5775d42c8e17bb21730db26aa01e0d098db758bcb9f0a3c3c9c6a221dc8e06a4fcd14dc3123d90a9f@73.240.200.107:55818")
 
 	bootNodes := []*enode.Node{targetNode}
-	/*for _, bn := range MainnetBootnodes[1:] {
-		bootNodes = append(bootNodes, utils.NewNode(bn))
-	}*/
 
 	ethLogger := ethlog.New("ETHLog", "p2p")
 	ethLogger.SetHandler(ethlog.StdoutHandler)

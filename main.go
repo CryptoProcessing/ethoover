@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"github.com/CryptoProcessing/ethoover/utils"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethlog "github.com/ethereum/go-ethereum/log"
@@ -36,30 +35,7 @@ type sharedUDPConn struct {
 	unhandled chan discover.ReadPacket
 }
 
-// ReadFromUDP implements discv5.conn
-func (s *sharedUDPConn) ReadFromUDP(b []byte) (n int, addr *net.UDPAddr, err error) {
-	packet, ok := <-s.unhandled
-	if !ok {
-		return 0, nil, errors.New("connection was closed")
-	}
-	l := len(packet.Data)
-	if l > len(b) {
-		l = len(b)
-	}
-	copy(b[:l], packet.Data[:l])
-	return l, packet.Addr, nil
-}
-
-// Close implements discv5.conn
-func (s *sharedUDPConn) Close() error {
-	return nil
-}
-
 func main() {
-	//var node *enode.Node = utils.NewNode("enode://8b4b5f437edebb1ec85eabdb3fd966576ea60710b83cb1e71d698369e92837bd76f5b557736230651f10e928d9e66e39388405f3d57edfa3e4aa4a083c18210e@127.0.0.1:30303")
-	//log.Println(node.IP(), node.String(), node.Pubkey(), node.Record())
-	//var r enr.Record
-	//r.Set(enr.IP{0, 0, 0, 0})
 
 	key, _ := crypto.GenerateKey()
 
@@ -69,6 +45,13 @@ func main() {
 		log.Fatalln(err)
 	}
 	bootnodesList := MainnetBootnodes
+
+	bootnodesMap := make(map[string]*enode.Node)
+	var bootNodes []*enode.Node
+	for _, bn := range bootnodesList {
+		bootNodes = append(bootNodes, utils.NewNode(bn))
+		bootnodesMap[bn] = utils.NewNode(bn)
+	}
 
 	conn, err := net.ListenUDP("udp", addr)
 	if err != nil {
@@ -83,19 +66,14 @@ func main() {
 
 	unhandled := make(chan discover.ReadPacket, 100)
 
-	var sconn *sharedUDPConn = &sharedUDPConn{
+	sconn := &sharedUDPConn{
 		conn,
 		unhandled,
 	}
 
 	log.Println(localNode.Node().IP(), localNode.Node().Pubkey())
 
-	var bootNodes []*enode.Node
-	for _, bn := range bootnodesList {
-		bootNodes = append(bootNodes, utils.NewNode(bn))
-	}
-
-	ethLogger := ethlog.New("newNode", "localhost")
+	ethLogger := ethlog.New("node", "localhost")
 	ethLogger.SetHandler(ethlog.StdoutHandler)
 
 	config := discover.Config{
@@ -107,36 +85,29 @@ func main() {
 	udp, err := discover.ListenUDP(sconn, localNode, config)
 	log.Println(err, udp)
 
-	//error := udp.Ping( targetNode )
-	//log.Println(error)
+	for k, v := range bootnodesList {
+		node := utils.NewNode(v)
 
-	//targetAddr, _ := net.ResolveUDPAddr("udp", "149.81.164.114:30303")
-	//localNode.UDPContact(targetAddr)
-	//randomNodes := udp.RandomNodes()
-
-	for i := 0; i < 200; i++ {
-		node := utils.NewNode(bootnodesList[i%len(bootnodesList)])
-		//host := fmt.Sprintf("%s:%d", node.IP(), node.TCP())
-		/*localNode.UDPContact(&net.UDPAddr{
-			IP:  node.IP() ,
-			Port: node.TCP(),
-		})*/
+		pingTime := time.Now()
 		err = udp.Ping(node)
 		if err != nil {
-			log.Println("Ping error", err)
+
+			ethLogger.Trace("Ping error", "err", err)
 		} else {
-			log.Println("Ping success")
+			ethLogger.Debug("Ping", "time", time.Now().Sub(pingTime).Seconds(), "id", k)
 		}
 
-		//enr, err := udp.RequestENR(node)
-		//nn := udp.Resolve(node)
-		//log.Println(err, nn.String())
-		time.Sleep(1 * time.Second)
 		nodes := udp.LookupPubkey(node.Pubkey())
 		for i, n := range nodes {
 			log.Println(i, n)
+			bootnodesMap[n.String()] = n
 		}
 
 	}
+
+	for k, _ := range bootnodesMap {
+		log.Println(k)
+	}
+	log.Println(len(bootnodesMap), "Nodes found")
 
 }
