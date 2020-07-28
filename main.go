@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/CryptoProcessing/ethoover/ethserver"
 	"github.com/CryptoProcessing/ethoover/utils"
 	"github.com/ethereum/go-ethereum/crypto"
 	ethlog "github.com/ethereum/go-ethereum/log"
@@ -131,7 +132,7 @@ func main() {
 	log.Println(localNode.Node().IP(), localNode.Node().Pubkey())
 
 	ethLogger := ethlog.New("node", "localhost")
-	ethLogger.SetHandler(ethlog.StdoutHandler)
+	//ethLogger.SetHandler(ethlog.StdoutHandler)
 
 	config := discover.Config{
 		PrivateKey: key,
@@ -169,6 +170,11 @@ func main() {
 					bootnodesList = append(bootnodesList, n.String())
 				}
 			}
+
+			newServer := ethserver.NewEthServer(v)
+			newServer.StartTestServer()
+			//newServer.AddPeer(v)
+			//newServer.GetPeers()
 		}
 	}
 
