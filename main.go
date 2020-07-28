@@ -35,6 +35,63 @@ type sharedUDPConn struct {
 	//unhandled chan discover.ReadPacket
 }
 
+/*
+func (srv *Server) setupConn(c *conn, flags connFlag, dialDest *enode.Node) error {
+	// Prevent leftover pending conns from entering the handshake.
+
+	// If dialing, figure out the remote public key.
+	var dialPubkey *ecdsa.PublicKey
+	if dialDest != nil {
+		dialPubkey = new(ecdsa.PublicKey)
+		if err := dialDest.Load((*enode.Secp256k1)(dialPubkey)); err != nil {
+			err = errors.New("dial destination doesn't have a secp256k1 public key")
+			srv.log.Trace("Setting up connection failed", "addr", c.fd.RemoteAddr(), "conn", c.flags, "err", err)
+			return err
+		}
+	}
+
+	// Run the RLPx handshake.
+	remotePubkey, err := c.doEncHandshake(srv.PrivateKey, dialPubkey)
+	if err != nil {
+		srv.log.Trace("Failed RLPx handshake", "addr", c.fd.RemoteAddr(), "conn", c.flags, "err", err)
+		return err
+	}
+	if dialDest != nil {
+		// For dialed connections, check that the remote public key matches.
+		if dialPubkey.X.Cmp(remotePubkey.X) != 0 || dialPubkey.Y.Cmp(remotePubkey.Y) != 0 {
+			return DiscUnexpectedIdentity
+		}
+		c.node = dialDest
+	} else {
+		c.node = nodeFromConn(remotePubkey, c.fd)
+	}
+	clog := srv.log.New("id", c.node.ID(), "addr", c.fd.RemoteAddr(), "conn", c.flags)
+	err = srv.checkpoint(c, srv.checkpointPostHandshake)
+	if err != nil {
+		clog.Trace("Rejected peer", "err", err)
+		return err
+	}
+
+	// Run the capability negotiation handshake.
+	phs, err := c.doProtoHandshake(srv.ourHandshake)
+	if err != nil {
+		clog.Trace("Failed p2p handshake", "err", err)
+		return err
+	}
+	if id := c.node.ID(); !bytes.Equal(crypto.Keccak256(phs.ID), id[:]) {
+		clog.Trace("Wrong devp2p handshake identity", "phsid", hex.EncodeToString(phs.ID))
+		return DiscUnexpectedIdentity
+	}
+	c.caps, c.name = phs.Caps, phs.Name
+	err = srv.checkpoint(c, srv.checkpointAddPeer)
+	if err != nil {
+		clog.Trace("Rejected peer", "err", err)
+		return err
+	}
+
+	return nil
+}*/
+
 func main() {
 
 	key, _ := crypto.GenerateKey()

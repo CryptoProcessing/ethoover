@@ -74,7 +74,7 @@ func main() {
 
 	defer close(connected)
 	//hosttargetNode := utils.NewNode("enode://006e0037a83ee46b93968f9c6c4a4208ea88c9c5c043c9a5775d42c8e17bb21730db26aa01e0d098db758bcb9f0a3c3c9c6a221dc8e06a4fcd14dc3123d90a9f@73.240.200.107:55818")
-	targetNode := utils.NewNode(MainnetBootnodes[1])
+	targetNode := utils.NewNode(MainnetBootnodes[0])
 	peerEventChan := make(chan *p2p.PeerEvent, 1)
 	sub := srv.SubscribeEvents(peerEventChan)
 	defer sub.Unsubscribe()
