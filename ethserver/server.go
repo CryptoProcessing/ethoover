@@ -2,6 +2,7 @@ package ethserver
 
 import (
 	"crypto/ecdsa"
+	"github.com/CryptoProcessing/ethoover/ethproto"
 	"github.com/CryptoProcessing/ethoover/utils"
 	"github.com/ethereum/go-ethereum/event"
 	ethlog "github.com/ethereum/go-ethereum/log"
@@ -68,6 +69,7 @@ func NewEthServer(bootNodeUri string) *EthServer {
 		PrivateKey:      key,
 		Logger:          ethLogger,
 		EnableMsgEvents: true,
+		Protocols:       ethproto.Protocols(),
 	}
 
 	return &EthServer{
