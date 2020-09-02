@@ -26,8 +26,14 @@ func PeerWorker(srv *EthServer) {
 	for {
 		select {
 		case ev := <-srv.PeerEventChan:
-			log.Println("Peer event", ev)
-			srv.GetPeers()
+			if ev.MsgCode == nil || ev.MsgSize == nil {
+				log.Println("Peer event", ev.Protocol, ev.Type, ev)
+
+			} else {
+				log.Println("Peer event", *ev.MsgCode, *ev.MsgSize, ev.Protocol, ev.Type, ev)
+			}
+
+			//srv.GetPeers()
 		case <-srv.StopChan:
 			log.Println("Stop event")
 			return
@@ -54,8 +60,8 @@ func (srv *EthServer) StopServer() {
 	srv.Server.Stop()
 }
 
-func NewEthServer(bootNodeUri string) *EthServer {
-	key := utils.NewKey()
+func NewEthServer(bootNodeUri string, key *ecdsa.PrivateKey) *EthServer {
+	//key := utils.NewKey()
 	ethLogger := ethlog.New("Node", bootNodeUri)
 	//ethLogger.SetHandler(ethlog.StdoutHandler)
 
@@ -73,8 +79,8 @@ func NewEthServer(bootNodeUri string) *EthServer {
 	}
 
 	return &EthServer{
-		Config:        config,
-		Key:           utils.NewKey(),
+		Config: config,
+		//Key:           key,
 		Log:           ethLogger,
 		PeerEventChan: make(chan *p2p.PeerEvent, 100),
 	}

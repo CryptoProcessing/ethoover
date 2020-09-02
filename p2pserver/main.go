@@ -25,11 +25,17 @@ var MainnetBootnodes = []string{
 	"enode://5d6d7cd20d6da4bb83a1d28cadb5d409b64edf314c0335df658c1a54e32c7c4a7ab7823d57c39b6a757556e68ff1df17c748b698544a55cb488b52479a92b60f@104.42.217.25:30303",   // bootnode-azure-westus-001
 }
 
+var globalKey *ecdsa.PrivateKey = nil
+
 func newkey() *ecdsa.PrivateKey {
+	if globalKey != nil {
+		return globalKey
+	}
 	key, err := crypto.GenerateKey()
 	if err != nil {
 		panic("couldn't generate key: " + err.Error())
 	}
+	globalKey = key
 	return key
 }
 func startTestServer(remoteKey *ecdsa.PublicKey, pf func(*p2p.Peer)) *p2p.Server {

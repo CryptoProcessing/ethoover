@@ -171,8 +171,9 @@ func main() {
 				}
 			}
 
-			newServer := ethserver.NewEthServer(v)
+			newServer := ethserver.NewEthServer(v, key)
 			newServer.StartTestServer()
+
 			//newServer.AddPeer(v)
 			//newServer.GetPeers()
 		}
